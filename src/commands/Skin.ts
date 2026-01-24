@@ -20,7 +20,7 @@ export class SkinCommand extends SlashCommandModule {
     public async execute(data: SlashCommand.ExecuteData): Promise<void> {
         const { interaction } = data;
 
-        const name = interaction.options.getString('name', true);
+        const name = interaction.options.getString('id', true);
 
         await interaction.reply({
             embeds: [
