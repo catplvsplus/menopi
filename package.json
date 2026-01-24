@@ -1,0 +1,22 @@
+{
+  "name": "menopi",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "reciple build",
+    "start": "reciple start",
+    "dev": "nodemon"
+  },
+  "dependencies": {
+    "@reciple/modules": "^10.0.7",
+    "bedrock-protocol": "^3.52.0",
+    "minecraft-protocol": "^1.62.0",
+    "reciple": "^10.0.7"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.9",
+    "nodemon": "^3.1.11",
+    "raknet-native": "^1.2.3",
+    "typescript": "^5.9.3"
+  }
+}

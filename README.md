@@ -1,2 +1,2 @@
 # menopi
- A node.js CLI framework
+A discord bot
