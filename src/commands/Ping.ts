@@ -131,20 +131,26 @@ export class PingCommand extends SlashCommandModule {
         };
 
         if (!pingData) return status;
-        if (typeof (pingData as JavaProtocol.NewPingResult).players === 'undefined') return status;
+        if (!('players' in pingData)) {
+            status.status = 'Offline';
+            status.version = pingData.version;
+            status.motd = pingData.motd;
+            status.maxPlayers = pingData.maxPlayers;
+            status.onlinePlayers = pingData.playerCount;
 
-        const newPingResult = pingData as JavaProtocol.NewPingResult;
+            return status;
+        }
 
-        status.status = newPingResult.players.max && !newPingResult.version.name.toLowerCase().includes('offline')
+        status.status = pingData.players.max && !pingData.version.name.toLowerCase().includes('offline')
             ? 'Online'
             : 'Offline';
 
-        status.maxPlayers = newPingResult.players.max;
-        status.onlinePlayers = newPingResult.players.online;
-        status.latency = newPingResult.latency;
-        status.version = newPingResult.version.name;
-        status.motd = typeof newPingResult.description === 'string' ? newPingResult.description : (newPingResult.description.text || null);
-        status.favicon = newPingResult.favicon ? Utility.parseBase64ImageURL(newPingResult.favicon) : null;
+        status.maxPlayers = pingData.players.max;
+        status.onlinePlayers = pingData.players.online;
+        status.latency = pingData.latency;
+        status.version = pingData.version.name;
+        status.motd = typeof pingData.description === 'string' ? pingData.description : (pingData.description.text || null);
+        status.favicon = pingData.favicon ? Utility.parseBase64ImageURL(pingData.favicon) : null;
 
         return status;
     }
