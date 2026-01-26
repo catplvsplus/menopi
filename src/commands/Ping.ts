@@ -1,8 +1,10 @@
-import { SlashCommandBuilder, SlashCommandModule, type SlashCommand } from 'reciple';
-import { EmbedBuilder, InteractionContextType } from 'discord.js';
+import { SlashCommandBuilder, SlashCommandModule, type BaseModule, type SlashCommand } from 'reciple';
+import { Collection, EmbedBuilder, InteractionContextType } from 'discord.js';
 import JavaProtocol from 'minecraft-protocol';
 import BedrockProtocol from 'bedrock-protocol';
 import Utility from './Utility.js';
+import { InteractionListenerBuilder, InteractionListenerType, type InteractionListenerData } from '@reciple/modules';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 
 export interface PingData {
     status: 'Online'|'Offline';
@@ -37,6 +39,7 @@ export class PingCommand extends SlashCommandModule {
         .addStringOption(ip => ip
             .setName('ip')
             .setDescription('The IP address of the Minecraft server')
+            .setAutocomplete(true)
             .setRequired(true)
         )
         .addStringOption(type => type
@@ -49,6 +52,24 @@ export class PingCommand extends SlashCommandModule {
             .setRequired(true)
         )
         .toJSON();
+
+    public recent: Collection<string, string[]> = new Collection();
+    public interactions: InteractionListenerData[] = [
+        new InteractionListenerBuilder()
+            .setType(InteractionListenerType.Autocomplete)
+            .setFilter(interaction => interaction.commandName === 'ping')
+            .setExecute(async interaction => {
+                const focused = interaction.options.getFocused().toLowerCase();
+                const recent = this.recent.get(interaction.user.id) ?? [];
+
+                await interaction.respond(recent
+                    .filter(ip => ip.toLowerCase().includes(focused))
+                    .map(ip => ({ name: ip, value: ip }))
+                    .slice(0, 25)
+                );
+            })
+            .toJSON()
+    ]
 
     public async execute(data: SlashCommand.ExecuteData): Promise<void> {
         const { interaction } = data;
@@ -66,6 +87,12 @@ export class PingCommand extends SlashCommandModule {
         };
 
         const pingData = await this.ping(options);
+        const recent = this.recent.get(interaction.user.id) ?? [];
+
+        if (!recent.includes(ip)) {
+            recent.push(ip);
+            this.recent.set(interaction.user.id, recent);
+        }
 
         await interaction.editReply({
             embeds: [
@@ -185,6 +212,21 @@ export class PingCommand extends SlashCommandModule {
         status.motd = pingData?.motd || null;
 
         return status;
+    }
+
+    public async onEnable(data: BaseModule.EventData<boolean>): Promise<void> {
+        const recent: [string, string[]][] = await readFile('.cache/autocomplete/recent.json', 'utf-8')
+            .then(JSON.parse)
+            .catch(() => []);
+
+        this.recent = new Collection(recent);
+    }
+
+    public async onDisable(data: BaseModule.EventData<boolean>): Promise<void> {
+        const recent: [string, string[]][] = this.recent.map((value, key) => ([key, value]));
+
+        await mkdir('.cache/autocomplete', { recursive: true });
+        await writeFile('.cache/autocomplete/recent.json', JSON.stringify(recent));
     }
 }
 

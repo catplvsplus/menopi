@@ -1,11 +1,11 @@
 import { BaseModule } from 'reciple';
 
 export class Utility extends BaseModule {
-    public stringifyIP(data: { host: string; port?: number|null; }): string {
+    public stringifyIP(data: Utility.Hostname): string {
         return `${data.host}${data.port ? (':' + data.port) : ''}`;
     }
 
-    public parseIP(ip: string, protocol?: 'JAVA'|'BEDROCK'): { host: string; port?: number; } {
+    public parseIP(ip: string, protocol?: 'JAVA'|'BEDROCK'): Utility.Hostname {
         const arr = ip.trim().toLowerCase().split(':');
         const host = arr.shift() || 'localhost';
 
@@ -27,6 +27,13 @@ export class Utility extends BaseModule {
         if (type.toLowerCase() !== 'base64') throw new Error('URL is not a valid base64');
 
         return Buffer.from(base64, 'base64');
+    }
+}
+
+export namespace Utility {
+    export interface Hostname {
+        host: string;
+        port?: number;
     }
 }
 
