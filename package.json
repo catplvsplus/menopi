@@ -8,12 +8,12 @@
     "dev": "nodemon"
   },
   "dependencies": {
-    "@prtty/prtty": "^1.1.0",
-    "@reciple/modules": "^10.0.14",
+    "@prtty/prtty": "^1.1.1",
+    "@reciple/modules": "^10.0.19",
     "bedrock-protocol": "^3.52.0",
     "discord.js": "^14.25.1",
     "minecraft-protocol": "^1.62.0",
-    "reciple": "^10.0.13",
+    "reciple": "^10.0.18",
     "redis": "^5.10.0"
   },
   "devDependencies": {
