@@ -53,6 +53,7 @@ export class PingCommand extends SlashCommandModule {
         )
         .toJSON();
 
+    public cooldown: number = 10000;
     public recent: Collection<string, string[]> = new Collection();
     public interactions: InteractionListenerData[] = [
         new InteractionListenerBuilder()
